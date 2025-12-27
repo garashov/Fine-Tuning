@@ -11,4 +11,3 @@ data/
 # Ignore not ready folders
 llm_chat_tuning/
 stt/
-llm_instruction/
