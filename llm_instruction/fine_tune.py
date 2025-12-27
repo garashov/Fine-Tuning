@@ -35,7 +35,7 @@ lora_alpha = 16
 lora_dropout=0
 
 # Training
-max_steps = 1
+max_steps = 250
 
 # Dataset
 dataset_id = "pauliusztin/second_brain_course_summarization_task"

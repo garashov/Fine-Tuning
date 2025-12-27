@@ -6,7 +6,7 @@ from transformers import  TextStreamer
 # Constants
 # ----------------------------------
 # Path to your fine-tuned model
-model_path = "./data/fine-tuning/models/Meta-Llama-3.1-8B-Instruct-ft-summarization-instruct/2025-12-27_16-40-46"
+model_path = "./data/fine-tuning/models/Meta-Llama-3.1-8B-Instruct-ft-summarization-instruct/2025-12-28_00-06-49"
 load_in_4bit = True         # Use 4bit quantization to reduce memory usage.
 dtype = None                # None for auto detection. Float16 for Tesla T4, V100
 max_seq_length = 4096       # Choose any! We auto support RoPE Scaling internally!
@@ -36,14 +36,14 @@ You are a helpful assistant specialized in summarizing documents. Generate a con
 # ----------------------------------
 # Load Fine-Tuned Model with Base Model
 # ----------------------------------
-load_model, load_tokenizer = FastLanguageModel.from_pretrained(
+model, tokenizer = FastLanguageModel.from_pretrained(
     model_name = model_path,
     load_in_4bit = load_in_4bit,
     max_seq_length = max_seq_length,
     dtype = dtype,
 )
-FastLanguageModel.for_inference(load_model) # Enable native 2x faster inference
-text_streamer = TextStreamer(load_tokenizer)
+FastLanguageModel.for_inference(model) # Enable native 2x faster inference
+text_streamer = TextStreamer(tokenizer)
 
 
 # ----------------------------------
@@ -65,15 +65,15 @@ def generate_text(
         instruction,
         "",  # output - leave this blank for generation!
     )
-    inputs = load_tokenizer([message], return_tensors="pt").to("cuda")
+    inputs = tokenizer([message], return_tensors="pt").to("cuda")
 
     if streaming:
-        return load_model.generate(
+        return model.generate(
             **inputs, streamer=text_streamer, max_new_tokens=256, use_cache=True
         )
     else:
-        output_tokens = load_model.generate(**inputs, max_new_tokens=256, use_cache=True)
-        output = load_tokenizer.batch_decode(output_tokens, skip_special_tokens=True)[0]
+        output_tokens = model.generate(**inputs, max_new_tokens=256, use_cache=True)
+        output = tokenizer.batch_decode(output_tokens, skip_special_tokens=True)[0]
 
         if trim_input_message:
             return output[len(message) :]
